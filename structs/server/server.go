@@ -6,6 +6,7 @@ import (
 
 type Server struct {
 	Mux *http.Mux 
+	Listener http.Listener
 }
 
 
