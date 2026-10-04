@@ -15,9 +15,10 @@ type Server struct {
 }
 
 func New() (*Server, error) {
+	var err error 
 	s := Server{} 
 	s.Mux = http.NewServeMux() 
-	s.Listener, err = net.Listen("tcp", "") 
+	s.Listener, err = net.Listen("tcp", ":0") 
 
 	return &s, nil 
 }
