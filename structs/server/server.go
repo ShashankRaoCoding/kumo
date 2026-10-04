@@ -13,7 +13,7 @@ type Server struct {
 	Logger *log.Logger 
 }
 
-func New() {
+func New() (*Server, error) {
 	
 }
 
