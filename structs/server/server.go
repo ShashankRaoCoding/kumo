@@ -13,7 +13,9 @@ type Server struct {
 	Logger *log.Logger 
 }
 
-
+func New() {
+	
+}
 
 
 
