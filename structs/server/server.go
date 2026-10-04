@@ -18,7 +18,11 @@ func New() (*Server, error) {
 	var err error 
 	s := Server{} 
 	s.Mux = http.NewServeMux() 
+
 	s.Listener, err = net.Listen("tcp", ":0") 
+	if err != nil {
+		return &s, err
+	}
 
 	return &s, nil 
 }
