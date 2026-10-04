@@ -4,6 +4,7 @@ import (
 	"net/http" 
 	"net"
 	"log"
+	"fmt" 
 )
 
 type Server struct {
@@ -14,9 +15,8 @@ type Server struct {
 }
 
 func New() (*Server, error) {
-	s := Server{
-		Mux: http.NewServeMux() , 
-	} 
+	s := Server{} 
+
 }
 
 
