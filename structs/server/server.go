@@ -7,7 +7,7 @@ import (
 
 type Server struct {
 	Mux *http.ServeMux 
-	Listener http.Listener
+	Listener net.Listener
 }
 
 
