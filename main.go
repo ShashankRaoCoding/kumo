@@ -7,6 +7,9 @@ import (
 
 func main() {
 	s, err := server.New()
+	if err != nil {
+		log.Println(err.Err()) 
+	}
 	log.Println(s.Listener.Addr()) 
 }
 
