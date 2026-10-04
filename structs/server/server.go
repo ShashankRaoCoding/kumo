@@ -16,6 +16,7 @@ type Server struct {
 
 func New() (*Server, error) {
 	s := Server{} 
+	s.Mux = http.NewServeMux() 
 
 	return &s, nil 
 }
