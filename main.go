@@ -9,6 +9,7 @@ func main() {
 	s, err := server.New()
 	if err != nil {
 		log.Println(err.Err()) 
+		return 
 	}
 	log.Println(s.Listener.Addr()) 
 }
