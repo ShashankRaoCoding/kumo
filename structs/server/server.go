@@ -1,4 +1,8 @@
+package server
 
+type Server struct {
+	Mux *http.Mux 
+}
 
 
 
