@@ -1,4 +1,8 @@
+package main.go
 
+import (
+	"github.com/ShashankRaoCoding/kumo/structs/server"
+)
 
 
 
