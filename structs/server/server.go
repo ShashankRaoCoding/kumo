@@ -9,7 +9,7 @@ import (
 
 type Server struct {
 	Mux *http.ServeMux 
-	Paths map[string]func(http.Writer, *http.Request) 
+	Paths map[string]func(http.ResponseWriter, *http.Request) 
 	Listener net.Listener
 	Logger *log.Logger 
 }
