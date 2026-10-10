@@ -12,6 +12,9 @@ func main() {
 		return 
 	}
 	log.Println(s.Listener.Addr()) 
+
+	err = s.Start() 
+	log.Println(err.Error()) 
 }
 
 

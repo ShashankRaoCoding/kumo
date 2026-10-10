@@ -27,7 +27,19 @@ func New() (*Server, error) {
 	return &s, nil 
 }
 
+func (s *Server) Start() error {
+	for path, function := range s.Paths {
+		s.Mux.HandleFunc(
+			path,
+			function , 
+		)
+	}
 
+	return http.Serve(
+		s.Mux,
+		s.Listener, 
+	)
+}
 
 
 
