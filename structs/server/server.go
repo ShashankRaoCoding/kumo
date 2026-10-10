@@ -36,8 +36,8 @@ func (s *Server) Start() error {
 	}
 
 	return http.Serve(
-		s.Mux,
 		s.Listener, 
+		s.Mux, 
 	)
 }
 
