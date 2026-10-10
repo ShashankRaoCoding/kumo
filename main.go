@@ -14,6 +14,9 @@ func main() {
 	log.Println(s.Listener.Addr()) 
 
 	err = s.Start() 
+	if err == nil {
+		return 
+	}
 	log.Println(err.Error()) 
 }
 
