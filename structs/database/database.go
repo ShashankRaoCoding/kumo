@@ -23,6 +23,8 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -37,6 +39,8 @@ var ErrClosed = errors.New("database: closed")
 type DB struct {
 	Path string
 
+	created bool // true if New created the file just now
+
 	mu     sync.RWMutex // guards closed; held (read) for the duration of each call
 	closed bool
 
@@ -49,6 +53,17 @@ type DB struct {
 type config struct {
 	pragmas    []string // extra pragmas, applied to every connection
 	maxReaders int
+	init       func(*DB) error // runs only when the file was just created
+}
+
+// WithInit registers setup that runs only when the database file did not
+// exist (or was empty) and has just been created, e.g. creating tables.
+// On later starts the file is simply opened and fn is skipped.
+//
+// If fn returns an error, the half-initialised file is deleted so the next
+// New will run fn again, and the error is reported by Err and every method.
+func WithInit(fn func(*DB) error) Option {
+	return func(c *config) { c.init = fn }
 }
 
 // Option customizes New.
@@ -126,6 +141,18 @@ func New(path string, opts ...Option) *DB {
 		return d
 	}
 
+	// Create the parent folder if needed, and note whether the file is new.
+	if dir := filepath.Dir(path); dir != "." && !strings.HasPrefix(path, "file:") {
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			d.err = fmt.Errorf("create dir for %s: %w", path, err)
+			return d
+		}
+	}
+	if !strings.HasPrefix(path, "file:") {
+		info, statErr := os.Stat(path)
+		d.created = statErr != nil || info.Size() == 0
+	}
+
 	w, err := open(buildDSN(path, false, cfg.pragmas), 1)
 	if err != nil {
 		d.err = fmt.Errorf("open %s: %w", path, err)
@@ -138,8 +165,25 @@ func New(path string, opts ...Option) *DB {
 		return d
 	}
 	d.writer, d.reader = w, r
+
+	if d.created && cfg.init != nil {
+		if err := cfg.init(d); err != nil {
+			d.reader.Close()
+			d.writer.Close()
+			// Remove the half-built file so the next start runs init again.
+			for _, suffix := range []string{"", "-wal", "-shm"} {
+				os.Remove(path + suffix)
+			}
+			d.err = fmt.Errorf("init %s: %w", path, err)
+			return d
+		}
+	}
 	return d
 }
+
+// Created reports whether New created the database file (true on first run,
+// false when an existing database was opened).
+func (d *DB) Created() bool { return d.created }
 
 func open(dsn string, maxConns int) (*sql.DB, error) {
 	conn, err := sql.Open("sqlite", dsn)
