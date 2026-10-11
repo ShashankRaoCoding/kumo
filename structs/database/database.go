@@ -215,21 +215,6 @@ func (d *DB) begin() error {
 	return nil
 }
 
-// Query runs a query that returns rows. The caller must close the rows.
-// Close all rows before calling DB.Close.
-func (d *DB) Query(query string, args ...any) (*sql.Rows, error) {
-	return d.QueryContext(context.Background(), query, args...)
-}
-
-// QueryContext is Query with a context.
-func (d *DB) QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
-	if err := d.begin(); err != nil {
-		return nil, err
-	}
-	defer d.mu.RUnlock()
-	return d.reader.QueryContext(ctx, query, args...)
-}
-
 // Exec runs a statement that doesn't return rows (INSERT, CREATE, ...).
 // All writes are serialized through one connection.
 func (d *DB) Exec(query string, args ...any) (sql.Result, error) {
