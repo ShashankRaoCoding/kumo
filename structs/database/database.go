@@ -45,8 +45,34 @@ type DB struct {
 	err    error   // open error, reported on every use
 }
 
+// config holds the settings New builds from its options.
+type config struct {
+	pragmas    []string // extra pragmas, applied to every connection
+	maxReaders int
+}
+
+// Option customizes New.
+type Option func(*config)
+
+// WithPragma adds pragmas applied to every connection (readers and writer),
+// written as in SQL without the "pragma" keyword, e.g. "cache_size(-64000)".
+// They are applied after the defaults, so they can override them, e.g.
+// WithPragma("synchronous(FULL)").
+func WithPragma(pragmas ...string) Option {
+	return func(c *config) { c.pragmas = append(c.pragmas, pragmas...) }
+}
+
+// WithMaxReaders sets the size of the read pool (default 8).
+func WithMaxReaders(n int) Option {
+	return func(c *config) {
+		if n > 0 {
+			c.maxReaders = n
+		}
+	}
+}
+
 // buildDSN adds the pragmas every connection in the pool needs.
-func buildDSN(path string, readOnly bool) string {
+func buildDSN(path string, readOnly bool, extra []string) string {
 	q := url.Values{}
 	q.Add("_pragma", "busy_timeout(5000)")
 	q.Add("_pragma", "foreign_keys(1)")
@@ -54,7 +80,11 @@ func buildDSN(path string, readOnly bool) string {
 	if !isMemory(path) {
 		q.Add("_pragma", "journal_mode(WAL)")
 	}
+	for _, p := range extra {
+		q.Add("_pragma", strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(p), "pragma ")))
+	}
 	if readOnly {
+		// Last, so an option can't turn the reader pool writable.
 		q.Add("_pragma", "query_only(1)")
 	}
 	return (&url.URL{Opaque: "file:" + escapePath(path), RawQuery: q.Encode()}).String()
@@ -72,13 +102,22 @@ func isMemory(path string) bool {
 // New opens (or creates) the SQLite database at path.
 // If opening fails, the error is returned by every later method call
 // instead of panicking, so New keeps its single-return signature.
-func New(path string) *DB {
+func New(path string, opts ...Option) *DB {
 	d := &DB{Path: path}
+
+	cfg := config{maxReaders: 8}
+	for _, opt := range opts {
+		opt(&cfg)
+	}
 
 	if isMemory(path) {
 		// Every connection to a plain :memory: DB is a *separate* database,
 		// so share one connection for both reads and writes.
-		conn, err := open(buildDSN(":memory:", false), 1)
+		memPath := path
+		if memPath == "" {
+			memPath = ":memory:"
+		}
+		conn, err := open(buildDSN(memPath, false, cfg.pragmas), 1)
 		if err != nil {
 			d.err = fmt.Errorf("open %s: %w", path, err)
 			return d
@@ -87,12 +126,12 @@ func New(path string) *DB {
 		return d
 	}
 
-	w, err := open(buildDSN(path, false), 1)
+	w, err := open(buildDSN(path, false, cfg.pragmas), 1)
 	if err != nil {
 		d.err = fmt.Errorf("open %s: %w", path, err)
 		return d
 	}
-	r, err := open(buildDSN(path, true), 8)
+	r, err := open(buildDSN(path, true, cfg.pragmas), cfg.maxReaders)
 	if err != nil {
 		w.Close()
 		d.err = fmt.Errorf("open %s (readers): %w", path, err)
