@@ -13,6 +13,11 @@ func main() {
 	}
 	log.Println(s.Listener.Addr()) 
 
+	_ , err := database.New()
+	if err != nil {
+		panic(err) 
+	}
+	
 	err = s.Start() 
 	if err == nil {
 		return 
