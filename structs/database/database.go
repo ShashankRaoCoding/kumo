@@ -12,7 +12,7 @@ type Database struct {
 }
 
 // New creates a sqlite database connection using the modernc driver.
-func New() (*Database ) {
+func New() (*Database, error) {
 	conn, err := sql.Open("sqlite", "file:kumo.db?_pragma=foreign_keys(1)")
 	// if err != nil {
 		// panic(err)
