@@ -3,6 +3,7 @@ package main
 import (
 	"log" 
 	"github.com/ShashankRaoCoding/kumo/structs/server"
+	"github.com/ShashankRaoCoding/kumo/structs/database"
 )
 
 func main() {
@@ -13,7 +14,7 @@ func main() {
 	}
 	log.Println(s.Listener.Addr()) 
 
-	_ , err := database.New()
+	_ , err = database.New()
 	if err != nil {
 		panic(err) 
 	}
