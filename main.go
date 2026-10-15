@@ -14,10 +14,11 @@ func main() {
 	}
 	log.Println(s.Listener.Addr()) 
 
-	_ , err = database.New()
+	db, err := database.New("db.sql")
 	if err != nil {
 		panic(err) 
 	}
+	defer db.Close()
 	
 	err = s.Start() 
 	if err == nil {
@@ -25,45 +26,3 @@ func main() {
 	}
 	log.Println(err.Error()) 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
