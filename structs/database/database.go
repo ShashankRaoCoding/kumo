@@ -12,13 +12,17 @@ type Database struct {
 }
 
 // New creates a sqlite database connection using the modernc driver.
-func New() (*Database, error) {
-	conn, err := sql.Open("sqlite", "file:kumo.db?_pragma=foreign_keys(1)")
-	// if err != nil {
-		// panic(err)
-	// }
+// It accepts an optional filepath argument. If no argument is provided,
+// it defaults to "file:kumo.db?_pragma=foreign_keys(1)".
+func New(path ...string) (*Database, error) {
+	// default DSN
+	dsn := "file:kumo.db?_pragma=foreign_keys(1)"
+	if len(path) > 0 && path[0] != "" {
+		dsn = path[0]
+	}
 
-	return &Database{db: conn}, err 
+	conn, err := sql.Open("sqlite", dsn)
+	return &Database{db: conn}, err
 }
 
 // Close closes the underlying DB connection.
