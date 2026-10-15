@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"strings"
 
 	_ "modernc.org/sqlite"
 )
@@ -15,14 +16,23 @@ type Database struct {
 // It accepts an optional filepath argument. If no argument is provided,
 // it defaults to "file:kumo.db?_pragma=foreign_keys(1)".
 func New(path ...string) (*Database, error) {
-	// default DSN
 	dsn := "file:kumo.db?_pragma=foreign_keys(1)"
 	if len(path) > 0 && path[0] != "" {
-		dsn = path[0]
+		candidate := path[0]
+		switch {
+		case strings.HasPrefix(candidate, "file:") || strings.Contains(candidate, "?"):
+			dsn = candidate
+		default:
+			dsn = "file:" + candidate + "?_pragma=foreign_keys(1)"
+		}
 	}
 
 	conn, err := sql.Open("sqlite", dsn)
-	return &Database{db: conn}, err
+	if err != nil {
+		return nil, err
+	}
+
+	return &Database{db: conn}, nil
 }
 
 // Close closes the underlying DB connection.
