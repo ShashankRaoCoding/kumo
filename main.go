@@ -2,8 +2,7 @@ package main
 
 import (
 	"log" 
-	"github.com/ShashankRaoCoding/kumo/structs/server"
-	"github.com/ShashankRaoCoding/kumo/structs/database"
+	"github.com/ShashankRaoCoding/kumo/server"
 )
 
 func main() {
