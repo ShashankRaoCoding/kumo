@@ -14,14 +14,11 @@ type Server struct {
 	Listener net.Listener
 	Logger *log.Logger 
 	DB *sql.DB
-	Config config
 }
 
-type config struct {
-	DBPath string 
-}
+type Option func(*Server)
 
-func New() (*Server, error) {
+func New(options ...Option) (*Server, error) {
 	var err error 
 	s := Server{} 
 	s.Mux = http.NewServeMux() 
@@ -31,7 +28,21 @@ func New() (*Server, error) {
 		return &s, err
 	}
 
+	s.ApplyOptions(options...)
+
+	// create or open db 
+	s.DB, err = sql.Open("sqlite3", s.dbPath)
+	if err != nil {
+		return &s, err
+	}
+
 	return &s, nil 
+}
+
+func (s *Server) ApplyOptions(options ...Option) {
+	for _, option := range options {
+		option(s) 
+	}
 }
 
 func (s *Server) Start() error {
