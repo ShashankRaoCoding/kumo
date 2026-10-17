@@ -16,8 +16,6 @@ type Server struct {
 	DB *sql.DB
 }
 
-type Option func(*Server)
-
 func New(options ...Option) (*Server, error) {
 	var err error 
 	s := Server{} 
