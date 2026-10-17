@@ -14,6 +14,11 @@ type Server struct {
 	Listener net.Listener
 	Logger *log.Logger 
 	DB *sql.DB
+	Config config
+}
+
+type config struct {
+	DBPath string 
 }
 
 func New() (*Server, error) {
