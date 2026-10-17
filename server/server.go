@@ -4,6 +4,7 @@ import (
 	"net/http" 
 	"net"
 	"log"
+	"database/sql"
 	// "fmt" 
 )
 
@@ -12,6 +13,7 @@ type Server struct {
 	Paths map[string]func(http.ResponseWriter, *http.Request) 
 	Listener net.Listener
 	Logger *log.Logger 
+	DB *sql.DB
 }
 
 func New() (*Server, error) {
