@@ -1,0 +1,7 @@
+# compiled binary
+/kumo
+
+# local database files
+*.db
+*.db-shm
+*.db-wal
