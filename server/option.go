@@ -1,44 +1,5 @@
-package config
+package server
 
-import "github.com/ShashankRaoCoding/kumo/server"
+// import "githubcom/ShashankRaoCoding/kumo/server"
 
 type Option func(*Server)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
