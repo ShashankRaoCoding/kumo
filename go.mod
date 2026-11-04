@@ -1,4 +1,4 @@
-module github.com/ShashankRaoCoding/kumo
+module github.com/ShashankRaoCoding/main
 
 go 1.26.0
 

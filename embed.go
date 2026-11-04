@@ -1,4 +1,4 @@
-package kumo
+package main
 
 import (
 	"embed"
