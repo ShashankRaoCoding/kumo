@@ -1,5 +1,5 @@
-package main
+package kumo
 
-// import "github.com/ShashankRaoCoding/main/server"
+// import "github.com/ShashankRaoCoding/kumo/server"
 
 type Option func(*Server)

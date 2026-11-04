@@ -1,6 +1,6 @@
-package main
+package kumo
 
-// import "github.com/ShashankRaoCoding/main/server"
+// import "github.com/ShashankRaoCoding/kumo/server"
 
 func WithDBPath(path string) Option {
 	return func(s *Server) {
